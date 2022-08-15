@@ -174,7 +174,6 @@ void go(std::string** arr, int size)
     int p;
     std::cin >> m >> p;
     if (arr[m][p] != K && arr[m][p] != Q && arr[m][p] != R && arr[m][p] != N && arr[m][p] != P && arr[m][p] != B && arr[m][p] != k && arr[m][p] != q && arr[m][p] != r && arr[m][p] != n && arr[m][p] != p1 && arr[m][p] != b)  {
-
         arr[i][j] = "";
         arr[m][p] = tmp;
     } else {

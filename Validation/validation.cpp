@@ -6,11 +6,11 @@ std::string web_links_field_validation();
 std::string credit_card_number_field_validation();
 std::string phone_number_field_validation();
 std::string phone_number_field_validation() {
-std::string correct = "true";
-std::string incorrect = "false";
-std::string phone;
-std::cout << "Input phone number " << std::endl;
-std::cin >>  phone;
+  std::string correct = "true";
+  std::string incorrect = "false";
+  std::string phone;
+  std::cout << "Input phone number " << std::endl;
+  std::cin >>  phone;
 
   for(int i = 0; i < phone.length(); ++i) {
    if(phone[i] >= 48 && phone[i] <= 57 || (phone[0] ==43 || phone[i] == 45)) {

@@ -3,7 +3,6 @@
 #include <vector>
 #include <map>
 
-
 void Arifmetic(std::string instruction, std::string, std::string, int, bool, bool, char);
 void Lexical_analysis(std::string, std::string&, int&, bool&);
 int  RIP_REGISTER(std::string, std::string, int, int);

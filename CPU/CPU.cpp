@@ -1,5 +1,270 @@
 #include <iostream>
 #include <fstream>
+#include <map>
+using namespace std;
+
+struct Instruction {
+    map<int, string> mp;
+};
+
+void DEC(string);
+void INC(string);
+void PRINT(string);
+Instruction split(const string& s);
+void ARITHMETIC(string, string, char);
+void FEACH(map<int, Instruction>, int);
+void LEBLE(map<int, Instruction>, int);
+bool HELPERS(map<int, Instruction>, int);
+int COMPARE(map<int, Instruction>, int&);
+void COMPARE_HELP(map<int, Instruction>, int&);
+
+map<string, int> registers_count = {
+    {"R1", 1}, {"R2", 2}, {"R3", 3}, {"R4", 4},{"R5", 5},
+    {"R6", 6}, {"R7", 7}, {"R8", 8}, {"R9", 9}, {"R10", 10}
+};
+
+map<string, char> Opcode = {
+    {"mov", '='}, {"add", '+'}, {"and", '&'},
+    {"or", '|'}, {"sub", '-'}, {"div", '/'}, {"mul", '*'}
+};
+
+map<string, void(*)(string)> help = {
+    {"print", &PRINT}, {"inc", &INC},
+    {"dec", &DEC}
+};
+map<string, string> jmp_help = {
+    {"jmp", ""}, {"je", "=="}, {"jne", "!="}, {"jg", ">"},
+    {"jge", ">="}, {"jl", "<"}, {"jle", "<="}, {"cmp", ""}
+};
+
+map<int, Instruction> code;
+
+map<string, int> Register;
+
+map<string, int> Lable;
+
+int main() {
+    int IP = -1;
+    string str;
+    ifstream file;
+    file.open("file.text");
+    while (!file.eof()) {
+        getline(file, str);
+        if (str != "") {
+        code[++IP] = split(str);
+        }
+    }
+    for (int ip = 0; ip < IP; ++ip) {
+        LEBLE(code, ip);
+    }
+    for (int ip = 0; ip <= IP; ++ip) {
+        ip = COMPARE(code, ip);
+        if(HELPERS(code, ip)) {
+            FEACH(code, ip);
+        }
+    }
+    file.close();
+}
+
+int COMPARE(map<int, Instruction> feach, int& IP)
+{
+    bool b = false;
+    auto it  = feach[IP].mp;
+    if (jmp_help.find(it[0]) != jmp_help.end()) {
+        if (it[0] == "cmp") {
+            b = true;
+        } else if (it[0] == "jmp") {
+            IP = Lable[it[1]];
+        }
+    }
+    if (b) {
+        COMPARE_HELP(feach, IP);
+        return IP;
+    }
+    return IP;
+}
+
+void COMPARE_HELP(map<int, Instruction> feach, int& IP)
+{
+    bool flag = false;
+    auto it = feach[IP].mp;
+    int r1 = Register[it[1]];
+    int r2 = Register[it[2]];
+    string str = "";
+    auto i = feach[++IP].mp;
+    string s = jmp_help[i[0]];
+
+    if (s == "==" && r1 == r2)
+        flag = true;
+    else if (s == "!=" && r1 != r2)
+        flag = true;
+    else if (s == ">" && r1 > r2)
+        flag = true;
+    else if (s == ">=" && r1 >= r2)
+        flag = true;
+    else if (s == "<" && r1 < r2)
+        flag = true;
+    else if (s == "<=" && r1 <= r2)
+        flag = true;
+
+    if (jmp_help.find(i[0]) != jmp_help.end() && flag) {
+        IP = Lable[i[1]];
+    } else {
+        ++IP;
+    }
+}
+
+bool HELPERS(map<int, Instruction> feach, int IP)
+{
+    void (*p_ptr)(string);
+    string str = "";
+    bool flag = true;
+    for (auto it : feach[IP].mp)
+    {
+        if (help.find(it.second) != help.end()) {
+            p_ptr = help[it.second];
+            flag = false;
+        } else {
+            if (registers_count.find(it.second) != registers_count.end()) {
+                str = it.second;
+                p_ptr(str);
+                return false;
+            }
+        }
+        if (flag) {
+            return true;
+        }
+    }
+    return true;
+}
+
+Instruction split(const string& s)
+{
+    int index = 0;
+    Instruction ret;
+    string str = "";
+    string s1 = " ,";
+    int i = 0, j = 0;
+    bool flag = false;
+    while (i < s.size()) {
+        if (s1.find(s[i]) != -1) {
+            flag = true;
+            ++i;
+        }
+        if (flag) {
+            ret.mp[index] = str;
+            str = "";
+            flag = false;
+            ++index;
+        }
+        if (s[i] != ' ') {
+            str += s[i];
+        }
+        ++i;
+    }
+    ret.mp[index] = str;
+    return ret;
+}
+
+void FEACH(map<int, Instruction> feach, int IP)
+{
+    char ch;
+    string str = "";
+    string str2 = "";
+    bool flag = true;
+    bool flag_loop = true;
+       for (auto it : feach[IP].mp) {
+            if (Opcode.find(it.second) != Opcode.end()) {
+                ch = Opcode[it.second];
+                flag_loop = false;
+            }
+            if (flag_loop) {
+                return;
+            }
+            if ((registers_count.find(it.second) != registers_count.end()) && flag) {
+                str = it.second;
+                flag = false;
+            } else {
+                str2 = it.second;
+            }
+        }
+    ARITHMETIC(str, str2, ch);
+}
+
+
+void ARITHMETIC(string str, string val, char ch)
+{
+    int value = 0;
+    if (val[0] >= '0' && val[0] <= '9') {
+        value = stoi(val);
+    } else {
+        value = Register[val];
+    }
+    if (ch == '=') {
+        Register[str] = value;
+    }
+    if (Register.find(str) != Register.end()) {
+        if (ch == '+') {
+            Register[str] += value;
+        } else if (ch == '-') {
+            Register[str] -= value;
+        } else if (ch == '/') {
+           Register[str] /= value;
+        } else if (ch == '*') {
+           Register[str] *= value;
+        } else if (ch == '&') {
+           Register[str] &= value;
+        } else if (ch == '|') {
+            Register[str] |= value;
+        }
+    } else {
+        cout << "Error not register" << endl;
+        exit(0);
+    }
+}
+
+void PRINT(string str)
+{
+    if (Register.find(str) != Register.end()) {
+        cout << Register[str] << endl;
+    } else {
+        cout << "Error not register print" << endl;
+        exit(0);
+    }
+}
+
+void LEBLE(map<int, Instruction> feach, int IP)
+{
+    string l = ":";
+    string cmp = "cmp";
+    bool flag = false;
+    for (auto it : feach[IP].mp) {
+        if (jmp_help.find(it.second) != jmp_help.end()) {
+            return;
+        }
+        if (Opcode.find(it.second) != Opcode.end()) {
+            return;
+        } else if (it.second.find(l) != -1) {
+            Lable[it.second] = IP;
+            return;
+        }
+    }
+}
+
+void INC(string str)
+{
+    ++Register[str];
+}
+
+void DEC(string str)
+{
+    --Register[str];
+}
+
+
+
+/*#include <iostream>
+#include <fstream>
 #include <vector>
 #include <map>
 
@@ -378,3 +643,4 @@ void EXIT()
     std::cout << "Error code" << std::endl;
     exit(0);
 }
+*/

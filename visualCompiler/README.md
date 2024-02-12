@@ -17,24 +17,28 @@ The Visual Compiler is a C++ program designed to parse a text file containing va
 
     ```plaintext
     int Integer; double Double; char Character; float Float; short Short; bool Boolean;
-    unsigned int integerNumber = 10; Double; double doubleNumber = 3.14159; unsigned char character = 'A'; unsigned float floatNumber = 2.71828f; unsigned short shortNumber = 1000; doubleNumber; unsigned bool boolean = true; long long int result; long int sum; const int constantValue = 11; constantValue; otherValue
+    unsigned int integerNumber = 10; Double; double doubleNumber = 3.14159; unsigned char character = 'A';
+    unsigned float floatNumber = 2.71828f; unsigned short shortNumber = 1000; doubleNumber; unsigned bool boolean = true;
+    long long int result; long int sum; const int constantValue = 11; constantValue; otherValue;
     ```
 
-2. **Compile**: Compile the program using your preferred C++ compiler.
+2. **Compile**. Build the program using CMake.
 
     ```bash
-    g++ main.cpp -o visualCompiler
+    mkdir build
+    cd build
+    cmake ..
+    make
     ```
 
 3. **Run**: Execute the compiled program and specify the input file as a command-line argument.
 
     ```bash
-    ./visualCompiler text.txt
+    ./prog ../text.txt
     ```
 
-4. **Output Files**: The program generates two output files:
+4. **Output Files**: The program generates one output files:
    - `result.txt`: Contains a list of variables with their data types, values, names, row numbers, and column numbers. Variables without assigned values are labeled as `GARBAGE`.
-   - `typeInfo.txt`: Contains a list of all simple data types used in variable declarations.
 
 ## Code Structure
 
@@ -42,4 +46,3 @@ The program consists of the following classes:
 
 - `InformationTypes`: Represents information about a variable, including its data type, value, name, row number, and column number.
 - `Types`: Main class responsible for parsing the input file, processing each line, and generating output files.
-

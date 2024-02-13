@@ -3,7 +3,7 @@
 
 struct InformationTypes {
     InformationTypes();
-    void set(const std::string&, const std::string&, const std::string&, const size_t&,     const size_t&);
+    void set(const std::string&, const std::string&, const std::string&, const size_t&, const size_t&);
     std::string typeName;
     std::string value;
     std::string name;
